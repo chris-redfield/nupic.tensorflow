@@ -21,8 +21,8 @@
 import os
 
 from tensorflow import keras
+from tensorflow.keras.utils import get_file
 from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.utils import get_file
 
 from nupic.tensorflow.constraints import SparseWeights
 from nupic.tensorflow.layers import KWinners, KWinners2d
