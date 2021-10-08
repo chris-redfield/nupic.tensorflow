@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow import keras
 
 
 class SparseWeights(keras.constraints.Constraint):

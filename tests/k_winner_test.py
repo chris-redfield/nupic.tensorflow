@@ -20,7 +20,7 @@
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python import keras
+from tensorflow import keras
 from tensorflow.python.keras import keras_parameterized, testing_utils
 from tensorflow.python.platform import test
 from tensorflow.python.training import gradient_descent
