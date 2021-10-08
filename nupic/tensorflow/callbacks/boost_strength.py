@@ -18,12 +18,12 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-from tensorflow.python.keras.callbacks import Callback
+from tensorflow import keras
 
 from nupic.tensorflow.layers.k_winners import KWinnersBase
 
 
-class UpdateBoostStrength(Callback):
+class UpdateBoostStrength(keras.callbacks.Callback):
     """
     Callback used to update KWinner modules boost strength after each epoch.
     """

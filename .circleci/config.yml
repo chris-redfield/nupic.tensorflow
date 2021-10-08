@@ -19,32 +19,29 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-version: 2
+version: 2.1
 
 jobs:
 
   validate_contributor:
-    working_directory: ~/nupic.tensorflow
+    working_directory: ~/nta/nupic.tensorflow
     machine: true
     steps:
-      - restore_cache:
-          key: source-cache-{{ .Environment.CIRCLE_SHA1 }}
       - checkout
       - run:
           name: Validate contributor license
           command: ci/validate-contributor.sh
-      - save_cache:
-          key: source-cache-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            - ~/nupic.tensorflow
+      - persist_to_workspace:
+          root: ~/nta
+          paths: nupic.tensorflow
 
   install_dependencies:
-    working_directory: ~/nupic.tensorflow
+    working_directory: ~/nta/nupic.tensorflow
     docker:
       - image: circleci/python:3.6
     steps:
-      - restore_cache:
-          key: source-cache-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/nta
       - restore_cache:
           key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
       - run: pip install --user flake8-formatter-junit-xml
@@ -57,12 +54,12 @@ jobs:
             - ~/.cache
 
   check_style:
-    working_directory: ~/nupic.tensorflow
+    working_directory: ~/nta/nupic.tensorflow
     docker:
       - image: circleci/python:3.6
     steps:
-      - restore_cache:
-          key: source-cache-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/nta
       - restore_cache:
           key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
       - run:
@@ -74,14 +71,20 @@ jobs:
           path: test_results
 
   test:
-    working_directory: ~/nupic.tensorflow
+    parameters:
+      tf_version:
+          type: string
+    working_directory: ~/nta/nupic.tensorflow
     docker:
       - image: circleci/python:3.6
     steps:
-      - restore_cache:
-          key: source-cache-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/nta
       - restore_cache:
           key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+      - run:
+          name: Install tensorflow
+          command: pip install tensorflow==<< parameters.tf_version >>
       - run:
           name: Run python tests
           environment:
@@ -93,21 +96,26 @@ jobs:
           path: test_results
 
   build:
-    working_directory: ~/nupic.tensorflow
+    working_directory: ~/nta/nupic.tensorflow
     docker:
       - image: circleci/python:3.6
     steps:
-      - restore_cache:
-          key: source-cache-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/nta
       - restore_cache:
           key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
       - run:
           name: Build wheel
           environment:
             VERBOSE: 1
-          command: python setup.py bdist_wheel
+          command: |
+            python setup.py bdist_wheel
+            python setup.py --version > dist/VERSION
       - store_artifacts:
           path: dist
+      - persist_to_workspace:
+          root: ~/nta
+          paths: nupic.tensorflow/dist
 
 
 workflows:
@@ -123,6 +131,9 @@ workflows:
           requires:
             - install_dependencies
       - test:
+          matrix:
+              parameters:
+                  tf_version: ["2.2.3", "2.3.4", "2.4.3", "2.5.1"]
           requires:
             - install_dependencies
       - build:
