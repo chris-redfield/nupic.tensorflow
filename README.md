@@ -16,13 +16,13 @@ This library integrates selected neuroscience principles from HTM into the [tens
 
 To install from local source code:
     
-    python setup.py develop
+    pip install -e .
 
 ### Test
 
 To run all tests:
 
-    python setup.py test
+    pytest
 
 
 ### _Having problems?_
