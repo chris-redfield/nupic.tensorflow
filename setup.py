@@ -19,56 +19,12 @@
 #  http://numenta.org/licenses/
 #
 # ------------------------------------------------------------------------------
-from os import path
+import site
+import sys
 
-from setuptools import find_namespace_packages, setup
+from setuptools import setup
 
-import nupic.tensorflow
+# FIXME: See https://github.com/pypa/pip/issues/7953
+site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
-ROOT = path.abspath(path.dirname(__file__))
-
-# Get requirements from file
-with open(path.join(ROOT, "requirements.txt")) as f:
-    requirements = [line.strip() for line in f.readlines() if not line.startswith("#")]
-
-# Get requirements-dev from file
-with open(path.join(ROOT, "requirements-dev.txt")) as f:
-    requirements_dev = [
-        line.strip() for line in f.readlines() if not line.startswith("#")
-    ]
-
-# Get the long description from the README file
-with open(path.join(ROOT, "README.md")) as f:
-    readme = f.read()
-
-setup(
-    name="nupic.tensorflow",
-    author="Numenta",
-    author_email="help@numenta.org",
-    license="AGPLv3",
-    platforms=["any"],
-    url="https://github.com/numenta/nupic.tensorflow",
-    description="Numenta Platform for Intelligent Computing Tensorflow libraries",
-    long_description=readme,
-    long_description_content_type="text/markdown",
-    version=nupic.tensorflow.__version__,
-    packages=find_namespace_packages(include=["nupic.*"]),
-    install_requires=requirements,
-    python_requires=">=3.6, <4",
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU Affero General Public License v3 or later "
-        "(AGPLv3+)",
-        "Operating System :: OS Independent",
-        "Environment :: Console",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    ],
-    project_urls={
-        "Bug Reports": "https://github.com/numenta/nupic.tensorflow/issues",
-        "Source": "https://github.com/numenta/nupic.tensorflow",
-    },
-    setup_requires=requirements_dev,
-    test_suite="tests",
-    tests_require=["pytest>=4.4.0"],
-)
+setup()

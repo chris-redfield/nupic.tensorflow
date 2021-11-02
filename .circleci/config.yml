@@ -43,12 +43,11 @@ jobs:
       - attach_workspace:
           at: ~/nta
       - restore_cache:
-          key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-      - run: pip install --user flake8-formatter-junit-xml
-      - run: pip install --user -r requirements-dev.txt -r requirements.txt
-      - run: python setup.py install --user
+          key: pip-cache-v1-{{ arch }}-{{ checksum "setup.cfg" }}
+      - run: pip show flake8-formatter-junit-xml || pip install --user flake8-formatter-junit-xml
+      - run: pip show nupic.tensorflow || pip install --user -e ".[dev]"
       - save_cache:
-          key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-cache-v1-{{ arch }}-{{ checksum "setup.cfg" }}
           paths:
             - ~/.local
             - ~/.cache
@@ -61,12 +60,12 @@ jobs:
       - attach_workspace:
           at: ~/nta
       - restore_cache:
-          key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-cache-v1-{{ arch }}-{{ checksum "setup.cfg" }}
       - run:
           name: Check Style
           command: |
             mkdir -p test_results/flake8
-            ~/.local/bin/flake8 --show-source --format junit-xml --output-file test_results/flake8/results.xml  nupic tests
+            ~/.local/bin/flake8 --show-source --format junit-xml --output-file test_results/flake8/results.xml src tests
       - store_test_results:
           path: test_results
 
@@ -81,17 +80,17 @@ jobs:
       - attach_workspace:
           at: ~/nta
       - restore_cache:
-          key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-cache-v1-{{ arch }}-{{ checksum "setup.cfg" }}
       - run:
           name: Install tensorflow
-          command: pip install tensorflow==<< parameters.tf_version >>
+          command: pip install --user tensorflow==<< parameters.tf_version >>
       - run:
           name: Run python tests
           environment:
             PYTEST_ADDOPTS: --junitxml=test_results/pytest/results.xml --verbose
           command: |
             mkdir -p test_results/pytest
-            python setup.py test
+            pytest -ra
       - store_test_results:
           path: test_results
 
@@ -103,7 +102,7 @@ jobs:
       - attach_workspace:
           at: ~/nta
       - restore_cache:
-          key: pip-cache-v1-{{ arch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-cache-v1-{{ arch }}-{{ checksum "setup.cfg" }}
       - run:
           name: Build wheel
           environment:

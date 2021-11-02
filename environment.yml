@@ -1,0 +1,15 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: osx-64
+name: nupic.tensorflow
+channels:
+  - defaults
+
+dependencies:
+  - python=3.8
+  - pip
+
+  - pip:
+      # Install nupic.tensorflow in develop mode
+      - -e .[dev]
+
